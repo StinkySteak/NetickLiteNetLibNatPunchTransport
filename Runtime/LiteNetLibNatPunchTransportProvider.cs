@@ -101,8 +101,8 @@ namespace Netick.Transport
 
                     ConnectToHost(hostEndPoint);
                     _startNatPunchTime = 0;
-                    
-                    Debug.Log($"LiteNetLib: NAT Punch Timeout. Connecting directly to: {hostEndPoint}...");
+
+                    Debug.LogWarning($"LiteNetLib: NAT Punch Timeout. Connecting directly to: {hostEndPoint}...");
                 }
             }
         }
