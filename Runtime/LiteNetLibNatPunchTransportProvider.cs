@@ -289,6 +289,8 @@ namespace Netick.Transport
 
         void INatPunchListener.OnNatIntroductionSuccess(IPEndPoint targetEndPoint, NatAddressType type, string token)
         {
+            if (Engine.IsServer) return;
+
             Debug.Log($"LiteNetLib: NAT Bypass success! Connecting to: {targetEndPoint}");
 
             _startNatPunchTime = 0f;
