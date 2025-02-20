@@ -126,6 +126,7 @@ namespace Netick.Transport
                 Debug.Log($"LiteNetLib: Registering to NAT: {_provider.NatPuncherAddress}:{_provider.NatPuncherPort}");
                 _userNatPunchModule = new UserNatPunchModule(_netManager, _provider.NatPuncherAddress, _provider.NatPuncherPort, _provider.NatPunchHeartbeat);
                 _userNatPunchModule.RegisterToNatPunch();
+                _userNatPunchModule.ResetHeartbeat();
             }
         }
 
@@ -159,7 +160,11 @@ namespace Netick.Transport
                 Debug.Log($"LiteNetLib: Re-Registering to NAT: {_natPunchRelayEndPoint.Address}:{_natPunchRelayEndPoint.Port}");
 
                 RegisterToNatPunch();
+                ResetHeartbeat();
+            }
 
+            public void ResetHeartbeat()
+            {
                 _lastRegisterTime = Time.time;
             }
 
