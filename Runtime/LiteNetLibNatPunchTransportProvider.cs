@@ -123,7 +123,7 @@ namespace Netick.Transport
                 _netManager.BroadcastReceiveEnabled = true;
                 _netManager.Start(port);
 
-                Debug.Log($"LiteNetLib: Registering to NAT: {_provider.NatPuncherAddress}:{_provider.NatPuncherPort}");
+                Debug.Log($"LiteNetLib: Registering to NAT Puncher: {_provider.NatPuncherAddress}:{_provider.NatPuncherPort}");
                 _userNatPunchModule = new UserNatPunchModule(_netManager, _provider.NatPuncherAddress, _provider.NatPuncherPort, _provider.NatPunchHeartbeat);
                 _userNatPunchModule.RegisterToNatPunch();
                 _userNatPunchModule.ResetHeartbeat();
@@ -195,11 +195,27 @@ namespace Netick.Transport
             if (!_netManager.IsRunning)
                 _netManager.Start();
 
+            bool isLocalConnect = IsLocalhost(address);
+
+            if (isLocalConnect)
+            {
+                Debug.Log($"LiteNetLib: Skipping NAT Punch because remoteEndPoint is local");
+                IPEndPoint hostEndPoint = NetUtils.MakeEndPoint(_queuedConnectParameter.Address, _queuedConnectParameter.Port);
+
+                ConnectToHost(hostEndPoint);
+                return;
+            }
+
             _startNatPunchTime = Time.time;
 
             string token = new IPEndPoint(IPAddress.Parse(address), port).ToString();
-            Debug.Log($"LiteNetLib: Bypassing NAT of: {token}");
+            Debug.Log($"LiteNetLib: Requesting NAT of: {token}...");
             _netManager.NatPunchModule.SendNatIntroduceRequest(_provider.NatPuncherAddress, _provider.NatPuncherPort, token);
+        }
+
+        private bool IsLocalhost(string address)
+        {
+            return address == "127.0.0.1" || address == "::1" || address.ToLower() == "localhost";
         }
 
         public override void Disconnect(TransportConnection connection)
