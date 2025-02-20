@@ -1,0 +1,16 @@
+{
+    "name": "com.stinkysteak.litenetlibnatpunchtransportnetick",
+    "rootNamespace": "",
+    "references": [
+        "GUID:166c61f9e22d9df41a00ea20161d3d57"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": true,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

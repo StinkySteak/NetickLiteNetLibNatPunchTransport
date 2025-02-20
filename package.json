@@ -1,0 +1,15 @@
+{
+  "name": "com.stinkysteak.com.stinkysteak.litenetlibnatpunchtransportnetick",
+  "version": "0.1.0",
+  "displayName": "LiteNetLib Nat Punch Transport for Netick",
+  "description": "Enhanced LiteNetLib for Netick allowing Nat Punch",
+  "unity": "2021.3",
+  "documentationUrl": "",
+  "changelogUrl": "",
+  "licensesUrl": "",
+  "author": {
+    "name": "Stinkysteak",
+    "email": "stinkysteak@steaksoft.com",
+    "url": "https://steaksoft.net"
+  }
+}
