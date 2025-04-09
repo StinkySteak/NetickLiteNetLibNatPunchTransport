@@ -195,7 +195,7 @@ namespace Netick.Transport
             if (!_netManager.IsRunning)
                 _netManager.Start();
 
-            bool isLocalConnect = IsLocalhost(address);
+            bool isLocalConnect = IsLocalhost(address) && _provider.DirectConnectOnLocalHost;
 
             if (isLocalConnect)
             {
