@@ -21,7 +21,8 @@ namespace Netick.Transport
         [Tooltip("LiteNetLib internal logic update interval (in seconds).")]
         public float UpdateInterval = 0.015f;
 
-        [Space]
+        [Header("NAT Punch")]
+        public bool DirectConnectOnLocalHost;
         public string NatPuncherAddress;
         public int NatPuncherPort;
         public float NatPunchHeartbeat = 5f;
