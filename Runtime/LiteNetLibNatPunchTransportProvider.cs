@@ -22,12 +22,20 @@ namespace Netick.Transport
         public float UpdateInterval = 0.015f;
 
         [Header("NAT Punch")]
-        public bool DirectConnectOnLocalHost;
+        public bool SkipPunchOnLocalHost;
+        public bool DirectConnectOnNatPunchTimeout;
+        public NatPuncherHost NatPuncherHostType;
         public string NatPuncherAddress;
         public int NatPuncherPort;
         public float NatPunchHeartbeat = 5f;
         [Tooltip("How long attempting to NAT Punch to the server as a client")]
         public float NatPunchTimeout = 3f;
+
+        public enum NatPuncherHost
+        {
+            DomainName,
+            Address
+        }
 
         public override NetworkTransport MakeTransportInstance() => new LiteNetLibNatPunchTransport(this);
     }
@@ -96,8 +104,17 @@ namespace Netick.Transport
 
                 float timeNatPunchExpired = _startNatPunchTime + _provider.NatPunchTimeout;
 
-                if (Time.time >= timeNatPunchExpired)
+                bool isNatPunchTimeout = Time.time >= timeNatPunchExpired;
+
+                if (isNatPunchTimeout)
                 {
+                    if (!_provider.DirectConnectOnNatPunchTimeout)
+                    {
+                        NetworkPeer.OnConnectFailed(ConnectionFailedReason.Timeout);
+                        _startNatPunchTime = 0;
+                        return;
+                    }
+
                     IPEndPoint hostEndPoint = NetUtils.MakeEndPoint(_queuedConnectParameter.Address, _queuedConnectParameter.Port);
 
                     ConnectToHost(hostEndPoint);
@@ -124,8 +141,10 @@ namespace Netick.Transport
                 _netManager.BroadcastReceiveEnabled = true;
                 _netManager.Start(port);
 
-                Debug.Log($"LiteNetLib: Registering to NAT Puncher: {_provider.NatPuncherAddress}:{_provider.NatPuncherPort}");
-                _userNatPunchModule = new UserNatPunchModule(_netManager, _provider.NatPuncherAddress, _provider.NatPuncherPort, _provider.NatPunchHeartbeat);
+                string addr = GetNatPuncherAddress();
+
+                Debug.Log($"LiteNetLib: Registering to NAT Puncher: {addr}:{_provider.NatPuncherPort}");
+                _userNatPunchModule = new UserNatPunchModule(_netManager, addr, _provider.NatPuncherPort, _provider.NatPunchHeartbeat);
                 _userNatPunchModule.RegisterToNatPunch();
                 _userNatPunchModule.ResetHeartbeat();
             }
@@ -196,7 +215,7 @@ namespace Netick.Transport
             if (!_netManager.IsRunning)
                 _netManager.Start();
 
-            bool isLocalConnect = IsLocalhost(address) && _provider.DirectConnectOnLocalHost;
+            bool isLocalConnect = IsLocalhost(address) && _provider.SkipPunchOnLocalHost;
 
             if (isLocalConnect)
             {
@@ -210,8 +229,20 @@ namespace Netick.Transport
             _startNatPunchTime = Time.time;
 
             string token = new IPEndPoint(IPAddress.Parse(address), port).ToString();
-            Debug.Log($"LiteNetLib: Requesting NAT of: {token}...");
-            _netManager.NatPunchModule.SendNatIntroduceRequest(_provider.NatPuncherAddress, _provider.NatPuncherPort, token);
+            Debug.Log($"LiteNetLib: Bypassing NAT of: {token}...");
+            _netManager.NatPunchModule.SendNatIntroduceRequest(GetNatPuncherAddress(), _provider.NatPuncherPort, token);
+        }
+
+        private string GetNatPuncherAddress()
+        {
+            if (_provider.NatPuncherHostType == LiteNetLibNatPunchTransportProvider.NatPuncherHost.DomainName)
+            {
+                IPHostEntry ip = Dns.GetHostEntry(_provider.NatPuncherAddress);
+                string addr = ip.AddressList[0].ToString();
+                return addr;
+            }
+
+            return _provider.NatPuncherAddress;
         }
 
         private bool IsLocalhost(string address)

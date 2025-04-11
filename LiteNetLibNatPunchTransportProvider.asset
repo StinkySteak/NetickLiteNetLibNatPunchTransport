@@ -16,6 +16,9 @@ MonoBehaviour:
   ReconnectInterval: 0.5
   MaxConnectAttempts: 10
   UpdateInterval: 0.015
+  SkipPunchOnLocalHost: 0
+  DirectConnectOnNatPunchTimeout: 0
+  NatPuncherHostType: 0
   NatPuncherAddress: 
   NatPuncherPort: 0
   NatPunchHeartbeat: 5
