@@ -19,7 +19,7 @@ MonoBehaviour:
   SkipPunchOnLocalHost: 0
   DirectConnectOnNatPunchTimeout: 0
   NatPuncherHostType: 0
-  NatPuncherAddress: 
-  NatPuncherPort: 0
+  NatPuncherAddress: lnl-puncher.netick.net
+  NatPuncherPort: 6956
   NatPunchHeartbeat: 5
   NatPunchTimeout: 3
