@@ -33,7 +33,7 @@ In dev, staging, or production you can try the public NAT Puncher Relay `lnl-pun
 1. Ensure to PollUpdate the LNLDiscovery
 
 Example Code
-```
+```cs
 public class LNLDiscoveryMono : MonoBehaviour, ILNLDiscoveryListener
 {
     [SerializeField] private int _startPort;
