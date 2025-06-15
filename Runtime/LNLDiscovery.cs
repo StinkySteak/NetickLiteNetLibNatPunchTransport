@@ -34,16 +34,17 @@ namespace Netick.Transport
         private List<DiscoveredSession> _discoveredSessions;
         private bool _isDiscoveredSessionChanged;
 
+        private bool _isRunning;
+        public bool IsRunning => _isRunning;
+
+
         public LNLDiscovery(ILNLDiscoveryListener discoveryListener, int lanDiscoverySecret, int startPort, int endPort)
         {
             _discoveryListener = discoveryListener;
             _lanDiscoverySecret = lanDiscoverySecret;
             _startPort = startPort;
             _endPort = endPort;
-        }
 
-        public void Initialize()
-        {
             _listener = new ClientListener(this, _lanDiscoverySecret);
 
             _netManager = new NetManager(_listener)
@@ -55,14 +56,23 @@ namespace Netick.Transport
                 SimulationMaxLatency = 1500,
             };
 
-            _netManager.Start();
             _writer = new();
-
             _discoveredSessions = new List<DiscoveredSession>(8);
         }
 
+        public void Start()
+        {
+            _netManager.Start();
+            _isRunning = true;
+        }
 
-        public void DiscoverHost()
+        public void Stop()
+        {
+            _netManager.Stop();
+            _isRunning = false;
+        }
+
+        private void DiscoverHost()
         {
             int portCount = (_endPort - _startPort) + 1;
 
@@ -79,6 +89,11 @@ namespace Netick.Transport
 
         public void PollUpdate()
         {
+            if (!_isRunning)
+            {
+                return;
+            }
+
             _netManager.PollEvents();
 
             if (Time.time >= _timeRemoveExpiredSession + _updateRemoveExpiredSessionInterval)
@@ -176,9 +191,7 @@ namespace Netick.Transport
                     {
                         string hostName = reader.GetString();
 
-                        Debug.Log($"[Client]: Host ({hostName}) is scanned!");
-
-                        DiscoveredSession session = new DiscoveredSession();
+                        DiscoveredSession session = new();
                         session.HostName = hostName;
                         session.EndPoint = remoteEndPoint;
                         session.DiscoveredTimestamp = Time.time;
