@@ -18,6 +18,8 @@ MonoBehaviour:
   UpdateInterval: 0.015
   SkipPunchOnLocalHost: 0
   DirectConnectOnNatPunchTimeout: 0
+  EnableLanDiscovery: 1
+  LanDiscoverySecret: 5555
   NatPuncherHostType: 0
   NatPuncherAddress: 
   NatPuncherPort: 0

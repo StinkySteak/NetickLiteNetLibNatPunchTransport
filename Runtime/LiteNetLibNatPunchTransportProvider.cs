@@ -21,6 +21,10 @@ namespace Netick.Transport
         [Tooltip("LiteNetLib internal logic update interval (in seconds).")]
         public float UpdateInterval = 0.015f;
 
+        [Header("LAN Discovery")]
+        public bool EnableLanDiscovery;
+        public int LanDiscoverySecret = 5555;
+
         [Header("NAT Punch")]
         public bool SkipPunchOnLocalHost;
         public bool DirectConnectOnNatPunchTimeout;
@@ -77,7 +81,7 @@ namespace Netick.Transport
             _clients = new(Engine.Config.MaxPlayers);
             _freeClients = new(Engine.Config.MaxPlayers);
             _buffer = new BitBuffer(createChunks: false);
-            _netManager = new NetManager(this) { AutoRecycle = true, NatPunchEnabled = true };
+            _netManager = new NetManager(this) { AutoRecycle = true, NatPunchEnabled = true, BroadcastReceiveEnabled = true, UnconnectedMessagesEnabled = true, IPv6Enabled = false };
             _netManager.DisconnectTimeout = (int)(_provider.DisconnectTimeout * 1000);
             _netManager.ReconnectDelay = (int)(_provider.ReconnectInterval * 1000);
             _netManager.MaxConnectAttempts = _provider.MaxConnectAttempts;
@@ -334,8 +338,23 @@ namespace Netick.Transport
             Debug.Log("LiteNetLib Network Error: " + socketError);
             NetworkPeer.OnConnectFailed(ConnectionFailedReason.Refused);
         }
+       
+        void INetEventListener.OnNetworkReceiveUnconnected(IPEndPoint remoteEndPoint, NetPacketReader reader, UnconnectedMessageType messageType)
+        {
 
-        void INetEventListener.OnNetworkReceiveUnconnected(IPEndPoint remoteEndPoint, NetPacketReader reader, UnconnectedMessageType messageType) { }
+            if (_provider.EnableLanDiscovery)
+            {
+                DiscoveredSession session = new DiscoveredSession();
+                session.EndPoint = remoteEndPoint;
+
+                NetDataWriter writer = new NetDataWriter();
+                writer.Put(_provider.LanDiscoverySecret);
+                writer.Put(SystemInfo.deviceName);
+
+                Debug.Log($"[Server]: Sending reply to: {remoteEndPoint}");
+                _netManager.SendUnconnectedMessage(writer, remoteEndPoint);
+            }
+        }
         void INetEventListener.OnNetworkLatencyUpdate(NetPeer peer, int latency) { }
 
         void INatPunchListener.OnNatIntroductionRequest(IPEndPoint localEndPoint, IPEndPoint remoteEndPoint, string token) { }
@@ -402,5 +421,12 @@ namespace Netick.Transport
                 Internal = new IPEndPoint(IPAddress.Parse(ipAddress), port);
             }
         }
+    }
+
+    public struct DiscoveredSession
+    {
+        public string HostName;
+        public IPEndPoint EndPoint;
+        public float DiscoveredTimestamp;
     }
 }
