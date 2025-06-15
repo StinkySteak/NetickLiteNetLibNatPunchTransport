@@ -26,8 +26,9 @@ namespace Netick.Transport
         public int LanDiscoverySecret = 5555;
 
         [Header("NAT Punch")]
-        public bool SkipPunchOnLocalHost;
-        public bool DirectConnectOnNatPunchTimeout;
+        public bool EnableNatPunch = true;
+        public bool SkipPunchOnLocalHost = true;
+        public bool DirectConnectOnNatPunchTimeout = true;
         public NatPuncherHost NatPuncherHostType;
         public string NatPuncherAddress;
         public int NatPuncherPort;
@@ -145,12 +146,15 @@ namespace Netick.Transport
                 _netManager.BroadcastReceiveEnabled = true;
                 _netManager.Start(port);
 
-                string addr = GetNatPuncherAddress();
+                if (_provider.EnableNatPunch)
+                {
+                    string addr = GetNatPuncherAddress();
 
-                Debug.Log($"LiteNetLib: Registering to NAT Puncher: {addr}:{_provider.NatPuncherPort}");
-                _userNatPunchModule = new UserNatPunchModule(_netManager, addr, _provider.NatPuncherPort, _provider.NatPunchHeartbeat);
-                _userNatPunchModule.RegisterToNatPunch();
-                _userNatPunchModule.ResetHeartbeat();
+                    Debug.Log($"LiteNetLib: Registering to NAT Puncher: {addr}:{_provider.NatPuncherPort}");
+                    _userNatPunchModule = new UserNatPunchModule(_netManager, addr, _provider.NatPuncherPort, _provider.NatPunchHeartbeat);
+                    _userNatPunchModule.RegisterToNatPunch();
+                    _userNatPunchModule.ResetHeartbeat();
+                }
             }
         }
 
@@ -211,8 +215,21 @@ namespace Netick.Transport
             }
         }
 
+        private void ConnectDefault(string address, int port, byte[] connectionData, int connectionDataLen)
+        {
+            if (connectionData == null)
+                _netManager.Connect(address, port, "");
+            else
+            {
+                _writer.Reset();
+                _writer.Put(connectionData, 0, connectionDataLen);
+                _netManager.Connect(address, port, _writer);
+            }
 
-        public override void Connect(string address, int port, byte[] connectionData, int connectionDataLen)
+            return;
+        }
+
+        private void ConnectNatPunch(string address, int port, byte[] connectionData, int connectionDataLen)
         {
             _queuedConnectParameter = new ConnectParameter(address, port, connectionData, connectionDataLen);
 
@@ -235,6 +252,18 @@ namespace Netick.Transport
             string token = new IPEndPoint(IPAddress.Parse(address), port).ToString();
             Debug.Log($"LiteNetLib: Bypassing NAT of: {token}...");
             _netManager.NatPunchModule.SendNatIntroduceRequest(GetNatPuncherAddress(), _provider.NatPuncherPort, token);
+        }
+
+
+        public override void Connect(string address, int port, byte[] connectionData, int connectionDataLen)
+        {
+            if (_provider.EnableNatPunch)
+            {
+                ConnectNatPunch(address, port, connectionData, connectionDataLen);
+                return;
+            }
+
+            ConnectDefault(address, port, connectionData, connectionDataLen);
         }
 
         private string GetNatPuncherAddress()
@@ -338,7 +367,7 @@ namespace Netick.Transport
             Debug.Log("LiteNetLib Network Error: " + socketError);
             NetworkPeer.OnConnectFailed(ConnectionFailedReason.Refused);
         }
-       
+
         void INetEventListener.OnNetworkReceiveUnconnected(IPEndPoint remoteEndPoint, NetPacketReader reader, UnconnectedMessageType messageType)
         {
 

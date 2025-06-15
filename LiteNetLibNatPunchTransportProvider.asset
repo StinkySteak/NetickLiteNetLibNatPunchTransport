@@ -16,12 +16,13 @@ MonoBehaviour:
   ReconnectInterval: 0.5
   MaxConnectAttempts: 10
   UpdateInterval: 0.015
-  SkipPunchOnLocalHost: 0
-  DirectConnectOnNatPunchTimeout: 0
   EnableLanDiscovery: 1
   LanDiscoverySecret: 5555
+  EnableNatPunch: 1
+  SkipPunchOnLocalHost: 0
+  DirectConnectOnNatPunchTimeout: 0
   NatPuncherHostType: 0
-  NatPuncherAddress: 
+  NatPuncherAddress: 0
   NatPuncherPort: 0
   NatPunchHeartbeat: 5
   NatPunchTimeout: 3
