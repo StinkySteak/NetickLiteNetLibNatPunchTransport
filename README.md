@@ -31,6 +31,7 @@ In dev, staging, or production you can try the public NAT Puncher Relay `lnl-pun
 1. Create a script implementing `ILNLDiscovery`
 1. Create a LNLDiscovery instance, and Initialize it.
 1. Ensure to PollUpdate the LNLDiscovery
+1. Make sure to Stop the LNLDiscover after it is not used (Can be used inside OnDestroy). Otherwise it would leak
 
 Example Code
 ```cs
