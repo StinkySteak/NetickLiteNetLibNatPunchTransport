@@ -148,8 +148,8 @@ namespace Netick.Transport
                 if (isExisting)
                 {
                     _discoveredSessions[i] = discoveredSession;
+                    return;
                 }
-                return;
             }
 
             _discoveredSessions.Add(discoveredSession);
