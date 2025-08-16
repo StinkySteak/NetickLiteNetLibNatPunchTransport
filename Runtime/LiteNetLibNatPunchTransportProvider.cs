@@ -35,6 +35,7 @@ namespace Netick.Transport
         public float NatPunchHeartbeat = 5f;
         [Tooltip("How long attempting to NAT Punch to the server as a client")]
         public float NatPunchTimeout = 3f;
+        public bool EnableVerboseLogging;
 
         public enum NatPuncherHost
         {
@@ -154,6 +155,7 @@ namespace Netick.Transport
                     _userNatPunchModule = new UserNatPunchModule(_netManager, addr, _provider.NatPuncherPort, _provider.NatPunchHeartbeat);
                     _userNatPunchModule.RegisterToNatPunch();
                     _userNatPunchModule.ResetHeartbeat();
+                    _userNatPunchModule.SetEnableLogging(_provider.EnableVerboseLogging);
                 }
             }
         }
@@ -171,6 +173,10 @@ namespace Netick.Transport
 
             private float _lastRegisterTime;
             private float _intervalReRegister;
+            private bool _enableLogging;
+
+            public void SetEnableLogging(bool enableLogging)
+                => _enableLogging = enableLogging;
 
             public UserNatPunchModule(NetManager netManager, string natPuncherRelayAddress, int natPunchRelayPort, float intervalHeartbeat)
             {
@@ -185,7 +191,8 @@ namespace Netick.Transport
 
                 if (!isCooldownExpired) return;
 
-                Debug.Log($"LiteNetLib: Re-Registering to NAT: {_natPunchRelayEndPoint.Address}:{_natPunchRelayEndPoint.Port}");
+                if (_enableLogging)
+                    Debug.Log($"LiteNetLib: Re-Registering to NAT: {_natPunchRelayEndPoint.Address}:{_natPunchRelayEndPoint.Port}");
 
                 RegisterToNatPunch();
                 ResetHeartbeat();
