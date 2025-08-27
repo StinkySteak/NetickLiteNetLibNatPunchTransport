@@ -1,5 +1,5 @@
 ## Overview
-This is an upgraded version of the default Netick LiteNetLib, enabling users to perform NAT punchthrough to establish direct connections.
+This is an upgraded version of the default Netick LiteNetLib, enabling users to perform NAT punch-through to establish direct connections.
 
 ## Features
 - NAT Punch
@@ -20,18 +20,21 @@ https://github.com/NetickNetworking/NetickForUnity
 - Click the plus icon.
 - Select Add package from git URL
 - Enter `https://github.com/StinkySteak/NetickLiteNetLibNatPunchTransport.git`
-- You can then create an instance by by double clicking in the Assets folder and going
- - Create > Netick > Transport > LiteNetLibNatPunchTransportProvider
+- You can then create an instance by double-clicking in the Assets folder and going
+- Create > Netick > Transport > LiteNetLibNatPunchTransportProvider
+- Look out for Nat Puncher Address and Port field on the transport Provider, these are the key components to register and or request NAT IP. In dev, staging, or production, you can try the public NAT Puncher Relay `lnl-puncher.netick.net:6956`. If you want to self-host the NAT Puncher STUN server, let's talk
 
-## How to Use?
-Look out for Nat Puncher Address and Port field on the transport Provider, these are the key components to register and or request NAT IP.  
-In dev, staging, or production you can try the public NAT Puncher Relay `lnl-puncher.netick.net:6956`. If you want to self-host the NAT Puncher STUN server, Let's talk
+## NAT Punch - How to?
+NAT Punch is a feature to establish a direct connection between two endpoints utilizing NAT
+1. Find the public IP address through what's my IP website, such as: [Check my NAT](https://www.checkmynat.com/)
+2. Join the game using the discovered IP Address
 
-## Host Discovery - How to?
+## Host LAN Discovery - How to?
+How LAN Discovery is an optional feature to allow scanning for Netick games that are running on LAN.
 1. Create a script implementing `ILNLDiscovery`
 1. Create a LNLDiscovery instance, and Initialize it.
 1. Ensure to PollUpdate the LNLDiscovery
-1. Make sure to Stop the LNLDiscover after it is not used (Can be used inside OnDestroy). Otherwise it would leak
+1. Make sure to stop the LNLDiscover after it is not used (Can be used inside OnDestroy). Otherwise, it would leak
 
 Example Code
 ```cs
