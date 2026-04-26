@@ -31,8 +31,8 @@ NAT Punch is a feature to establish a direct connection between two endpoints ut
 
 ## Host LAN Discovery - How to?
 How LAN Discovery is an optional feature to allow scanning for Netick games that are running on LAN.
-1. Create a script implementing `ILNLDiscovery`
-1. Create a LNLDiscovery instance, and Initialize it.
+1. Create a script implementing `ILNLDiscovery.`
+1. Create a LNLDiscovery instance and Start it.
 1. Ensure to PollUpdate the LNLDiscovery
 1. Make sure to stop the LNLDiscover after it is not used (Can be used inside OnDestroy). Otherwise, it would leak
 
@@ -48,18 +48,17 @@ public class LNLDiscoveryMono : MonoBehaviour, ILNLDiscoveryListener
     private void Start()
     {
         _discovery = new LNLDiscovery(this, 5555, _startPort, _endPort);
-        _discovery.Initialize();
-    }
-
-    [ContextMenu(nameof(Discover))]
-    private void Discover()
-    {
-        _discovery.DiscoverHost();
+        _discovery.Start();
     }
 
     private void Update()
     {
         _discovery.PollUpdate();
+    }
+
+    private void OnDestroy()
+    {
+        _discovery.Stop();
     }
 
     public void OnDiscoveredSessionUpdated(IReadOnlyList<DiscoveredSession> sessions)
