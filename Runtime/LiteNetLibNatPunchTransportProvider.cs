@@ -377,7 +377,6 @@ namespace Netick.Transport
 
         void INetEventListener.OnNetworkReceiveUnconnected(IPEndPoint remoteEndPoint, NetPacketReader reader, UnconnectedMessageType messageType)
         {
-
             if (_provider.EnableLanDiscovery)
             {
                 DiscoveredSession session = new DiscoveredSession();
@@ -386,6 +385,8 @@ namespace Netick.Transport
                 NetDataWriter writer = new NetDataWriter();
                 writer.Put(_provider.LanDiscoverySecret);
                 writer.Put(SystemInfo.deviceName);
+                writer.Put(Engine.Players.Count);
+                writer.Put(Engine.MaxPlayers);
 
                 Debug.Log($"[Server]: Sending reply to: {remoteEndPoint}");
                 _netManager.SendUnconnectedMessage(writer, remoteEndPoint);
@@ -464,5 +465,7 @@ namespace Netick.Transport
         public string HostName;
         public IPEndPoint EndPoint;
         public float DiscoveredTimestamp;
+        public int Players;
+        public int MaxPlayers;
     }
 }

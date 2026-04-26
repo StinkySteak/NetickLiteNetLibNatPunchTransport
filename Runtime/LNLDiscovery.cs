@@ -190,10 +190,14 @@ namespace Netick.Transport
                     if (messageId == _lanDiscoverySecret)
                     {
                         string hostName = reader.GetString();
+                        int players = reader.GetInt();
+                        int maxPlayers = reader.GetInt();
 
                         DiscoveredSession session = new();
                         session.HostName = hostName;
                         session.EndPoint = remoteEndPoint;
+                        session.Players = players;
+                        session.MaxPlayers = maxPlayers;
                         session.DiscoveredTimestamp = Time.time;
 
                         _discovery.OnHostDiscovered(session);
